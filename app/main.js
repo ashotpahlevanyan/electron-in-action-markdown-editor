@@ -4,7 +4,7 @@ let mainWindow = null;
 
 app.on('ready', () => {
 	mainWindow = new BrowserWindow();
-	mainWindow.loadFile('index.html');
+	mainWindow.loadFile(__dirname + '/index.html');
 
 	mainWindow.on('closed', () => {
 		mainWindow = null;
