@@ -11,7 +11,7 @@ app.on('ready', () => {
 	mainWindow.once('ready-to-show', () => {
 		mainWindow.show();
 		mainWindow.webContents.openDevTools();
-		getFileFromUser();
+		//getFileFromUser();
 	});
 
 	mainWindow.on('closed', () => {
@@ -20,7 +20,7 @@ app.on('ready', () => {
 
 });
 
-const getFileFromUser = () => {
+const getFileFromUser = exports.getFileFromUser = () => {
 	const files = dialog.showOpenDialog(mainWindow, {
 		properties: ['openFile'],
 		filters: [
