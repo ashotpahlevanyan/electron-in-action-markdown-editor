@@ -1,0 +1,20 @@
+{
+  "name": "markdownsalefire",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app/main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "test"
+  },
+  "keywords": [
+    "electron",
+    "markdown"
+  ],
+  "author": "Ashot Pahlevanyan",
+  "license": "MIT",
+  "dependencies": {
+    "electron": "^3.0.10",
+    "marked": "^0.5.2"
+  }
+}
