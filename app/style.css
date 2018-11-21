@@ -31,6 +31,7 @@ button {
 	background-color: rgb(181, 220, 216);
 	border: none;
 	padding: 0.5em 1em;
+	cursor: pointer;
 }
 button:hover {
 	background-color: rgb(156, 198, 192);
@@ -59,6 +60,7 @@ button:disabled {
 	padding: 1em;
 	overflow: scroll;
 	font-size: 16px;
+	color: #000;
 }
 .raw-markdown {
 	border: 5px solid rgb(238, 252, 250);
