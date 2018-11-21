@@ -1,4 +1,4 @@
-const { remote } = require('electron');
+const { remote, ipcRenderer } = require('electron');
 const mainProcess = remote.require('./main.js');
 
 const marked = require('marked');
@@ -20,6 +20,11 @@ markdownView.addEventListener('keyup', (event) => {
 
 openFileButton.addEventListener('click', () => {
 	mainProcess.getFileFromUser();
+});
+
+ipcRenderer.on('file-opened', (event, file, content) => {
+	markdownView.value = content;
+	renderMarkdownToHtml(content);
 });
 
 const renderMarkdownToHtml = (markdown) => {
