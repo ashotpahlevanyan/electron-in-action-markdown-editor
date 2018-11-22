@@ -7,6 +7,19 @@ app.on('ready', () => {
 	createWindow();
 });
 
+app.on('window-all-closed', () => {
+	if(process.platform === 'darwin') {
+		return false;
+	}
+	app.quit();
+});
+
+app.on('activate', (event, hasVisibleWindows) => {
+	if(!hasVisibleWindows) {
+		createWindow();
+	}
+});
+
 const getFileFromUser = exports.getFileFromUser = (targetWindow) => {
 	const files = dialog.showOpenDialog(targetWindow, {
 		properties: ['openFile'],
