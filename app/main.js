@@ -25,7 +25,16 @@ const getFileFromUser = exports.getFileFromUser = (targetWindow) => {
 };
 
 const createWindow = exports.createWindow = () => {
-	let newWindow = new BrowserWindow({ width: 1150, height: 600, show: false });
+	let x, y;
+
+	const currentWindow = BrowserWindow.getFocusedWindow();
+
+	if(currentWindow) {
+		const [currentWindowX, currentWindowY] = currentWindow.getPosition();
+		x = currentWindowX + 20;
+		y = currentWindowY + 20;
+	}
+	let newWindow = new BrowserWindow({x, y, width: 1150, height: 600, show: false });
 	newWindow.loadFile(__dirname + '/index.html');
 
 	newWindow.once('ready-to-show', () => {
