@@ -15,7 +15,8 @@
   "license": "MIT",
   "dependencies": {
     "electron": "^3.0.10",
-    "marked": "^0.5.2"
+    "marked": "^0.5.2",
+    "path": "^0.12.7"
   },
   "devDependencies": {
     "electron-react-devtools": "^0.5.3"
