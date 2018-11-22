@@ -149,8 +149,8 @@ const startWatchingFile = (targetWindow, file) => {
 
 	const watcher = fs.watchFile(file, (event) => {
 		if(event === 'change') {
-			const content = fs.readFileSync(file);
-			targetWindow.webContents.send('file-opened', file, content);
+			const content = fs.readFileSync(file).toString();
+			targetWindow.webContents.send('file-changed', file, content);
 		}
 	});
 
