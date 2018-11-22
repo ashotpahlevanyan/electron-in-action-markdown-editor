@@ -1,27 +1,14 @@
 const { app, BrowserWindow, dialog } = require('electron');
 const fs = require('fs');
 
-let mainWindow = null;
+const windows = new Set();
 
 app.on('ready', () => {
-
-	mainWindow = new BrowserWindow({ width: 1150, height: 600, show: false});
-	mainWindow.loadFile(__dirname + '/index.html');
-
-	mainWindow.once('ready-to-show', () => {
-		mainWindow.show();
-		mainWindow.webContents.openDevTools();
-		//getFileFromUser();
-	});
-
-	mainWindow.on('closed', () => {
-		mainWindow = null;
-	});
-
+	createWindow();
 });
 
-const getFileFromUser = exports.getFileFromUser = () => {
-	const files = dialog.showOpenDialog(mainWindow, {
+const getFileFromUser = exports.getFileFromUser = (targetWindow) => {
+	const files = dialog.showOpenDialog(targetWindow, {
 		properties: ['openFile'],
 		filters: [
 			{
@@ -33,11 +20,30 @@ const getFileFromUser = exports.getFileFromUser = () => {
 		]
 	});
 	if(files) {
-		openFile(files[0]);
+		openFile(targetWindow, files[0]);
 	}
 };
 
-const openFile = (file) => {
+const createWindow = exports.createWindow = () => {
+	let newWindow = new BrowserWindow({ width: 1150, height: 600, show: false });
+	newWindow.loadFile(__dirname + '/index.html');
+
+	newWindow.once('ready-to-show', () => {
+		newWindow.show();
+		newWindow.webContents.openDevTools();
+	});
+
+	newWindow.on('closed', () => {
+		windows.delete(newWindow);
+		newWindow = null;
+	});
+
+	windows.add(newWindow);
+
+	return newWindow;
+};
+
+const openFile = (targetWindow, file) => {
 	const content = fs.readFileSync(file).toString();
-	mainWindow.webContents.send('file-opened', file, content);
+	targetWindow.webContents.send('file-opened', file, content);
 };
