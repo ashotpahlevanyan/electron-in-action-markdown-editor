@@ -2,6 +2,7 @@ const { app, BrowserWindow, dialog } = require('electron');
 const fs = require('fs');
 
 const windows = new Set();
+const openFiles = new Map();
 
 app.on('ready', () => {
 	createWindow();
@@ -64,8 +65,30 @@ const createWindow = exports.createWindow = () => {
 		newWindow.webContents.openDevTools();
 	});
 
+	newWindow.on('close', (event) => {
+		if(newWindow.isDocumentEdited()) {
+			event.preventDefault();
+
+			const result = dialog.showMessageBox(newWindow, {
+				type: 'warning',
+				title: 'Quit With Unsaved Changes ?',
+				message: 'Your changes will be lost if you do not save.',
+				buttons: [
+					'Quit Anyway',
+					'Cancel'
+				],
+				defaultId: 0,
+				cancelId: 1
+			});
+
+			if(result === 0) {
+				newWindow.destroy();
+			}
+		}
+	});
 	newWindow.on('closed', () => {
 		windows.delete(newWindow);
+		stopWatchingFile(newWindow);
 		newWindow = null;
 	});
 
@@ -74,7 +97,7 @@ const createWindow = exports.createWindow = () => {
 	return newWindow;
 };
 
-const openFile = (targetWindow, file) => {
+const openFile = exports.openFile = (targetWindow, file) => {
 	const content = fs.readFileSync(file).toString();
 	app.addRecentDocument(file);
 	targetWindow.setRepresentedFilename(file);
@@ -119,4 +142,24 @@ const saveMarkdown = exports.saveMarkdown = (targetWindow, file, content) => {
 
 	fs.writeFileSync(file, content);
 	openFile(targetWindow, file);
+};
+
+const startWatchingFile = (targetWindow, file) => {
+	stopWatchingFile(targetWindow);
+
+	const watcher = fs.watchFile(file, (event) => {
+		if(event === 'change') {
+			const content = fs.readFileSync(file);
+			targetWindow.webContents.send('file-opened', file, content);
+		}
+	});
+
+	openFiles.set(targetWindow, watcher);
+};
+
+const stopWatchingFile = (targetWindow) => {
+	if(openFiles.has(targetWindow)) {
+		openFiles.get(targetWindow).stop();
+		openFiles.delete(targetWindow);
+	}
 };

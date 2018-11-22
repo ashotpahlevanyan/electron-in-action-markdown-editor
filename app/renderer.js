@@ -16,6 +16,12 @@ const	showFileButton = document.querySelector('#show-file');
 const	openInDefaultButton = document.querySelector('#open-in-default');
 
 
+document.addEventListener('dragstart', event => event.preventDefault());
+document.addEventListener('dragover', event => event.preventDefault());
+document.addEventListener('dragleave', event => event.preventDefault());
+document.addEventListener('drop', event => event.preventDefault());
+
+
 let filePath = null;
 let originalContent = '';
 
@@ -46,14 +52,55 @@ revertButton.addEventListener('click', () => {
 	renderMarkdownToHtml(originalContent);
 });
 
+markdownView.addEventListener('dragover', (event) => {
+	const file = getDraggedFile(event);
+
+	if(fileTypeIsSupported(file)) {
+		markdownView.classList.add('drag-over');
+	} else {
+		markdownView.classList.add('drag-error');
+	}
+});
+
+markdownView.addEventListener('drop', (event) => {
+	const file = getDroppedFile(event);
+
+	if(fileTypeIsSupported(file)) {
+		mainProcess.openFile(currentWindow, file.path);
+	} else {
+		alert('That File type is not supported');
+	}
+
+	markdownView.classList.remove('drag-over');
+	markdownView.classList.remove('drag-error');
+});
+
+markdownView.addEventListener('dragleave', () => {
+	markdownView.classList.remove('drag-over');
+	markdownView.classList.remove('drag-error');
+});
+
 ipcRenderer.on('file-opened', (event, file, content) => {
-	filePath = file;
-	originalContent = content;
+	if(currentWindow.isDocumentEdited()) {
+		const result = remote.dialog.showMessageBox(currentWindow, {
+			type: 'warning',
+			title: 'Overwrite Current Unsaved Changes ?',
+			message: 'Opening new file in this window will overwrite your unsaved changes. ' +
+			'Open this file anyway ?',
+			buttons: [
+				'Yes',
+				'Cancel'
+			],
+			defaultId: 0,
+			cancelId: 1
+		});
 
-	markdownView.value = content;
-	renderMarkdownToHtml(content);
+		if(result === 1) {
+			return;
+		}
+	}
 
-	updateUserInterface();
+	renderFile(file, content);
 });
 
 
@@ -75,4 +122,21 @@ const updateUserInterface = (isEdited) => {
 
 const renderMarkdownToHtml = (markdown) => {
 	htmlView.innerHTML = marked(markdown, { sanitize: true });
+};
+
+const getDraggedFile = (event) => event.dataTransfer.items[0];
+const getDroppedFile = (event) => event.dataTransfer.files[0];
+
+const fileTypeIsSupported = (file) => {
+	return ['text/plain', 'text/markdown'].includes(file.type);
+};
+
+const renderFile = (file, content) => {
+	filePath = file;
+	originalContent = content;
+
+	markdownView.value = content;
+	renderMarkdownToHtml(content);
+
+	updateUserInterface(false);
 };
