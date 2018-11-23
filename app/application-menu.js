@@ -108,6 +108,17 @@ if(process.platform === 'darwin') {
 			},
 		],
 	});
+
+	const windowMenu = template.find(item => item.label === 'Window');
+	windowMenu.role = 'window';
+	windowMenu.submenu.push(
+		{
+			type: 'separator'
+		},
+		{
+			label: 'Bring All To Front',
+			role: 'front'
+		})
 }
 
 module.exports = Menu.buildFromTemplate(template);
