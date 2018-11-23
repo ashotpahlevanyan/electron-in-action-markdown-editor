@@ -1,5 +1,12 @@
-const { app, BrowserWindow, Menu, shell } = require('electron');
+const { app, BrowserWindow, Menu, MenuItem, shell } = require('electron');
 const mainProcess = require('./main');
+
+
+const copyMenuItem = new MenuItem({
+	label: 'Copy',
+	accelerator: 'CommandOrControl+C',
+	role: 'copy'
+});
 
 const template = [
 	{
@@ -59,7 +66,48 @@ const template = [
 
 if(process.platform === 'darwin') {
 	const name = app.getName();
-	template.unshift({label: name});
+	template.unshift({
+		label: name,
+		submenu: [
+			{
+				label: `About ${name}`,
+				role: 'about'
+			},
+			{
+				type: 'separator'
+			},
+			{
+				label: 'Services',
+				role: 'services',
+				submenu: []
+			},
+			{
+				type: 'separator'
+			},
+			{
+				label: `Hide ${name}`,
+				accelerator: 'Command+H',
+				role: 'hide'
+			},
+			{
+				label: 'Hide Others',
+				accelerator: 'Command+Alt+H',
+				role: 'hideothers'
+			},
+			{
+				label: 'Show All',
+				role: 'unhide'
+			},
+			{
+				type: 'separator'
+			},
+			{
+				label: `Quit ${name}`,
+				accelerator: 'Command+Q',
+				click() {app.quit();}
+			},
+		],
+	});
 }
 
 module.exports = Menu.buildFromTemplate(template);
