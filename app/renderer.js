@@ -52,7 +52,7 @@ markdownView.addEventListener('keyup', (event) => {
 
 markdownView.addEventListener('contextmenu', (event) => {
 	event.preventDefault();
-	markdownContextMenu.popup({});
+	createContextMenu().popup({});
 });
 
 openFileButton.addEventListener('click', () => {
@@ -195,20 +195,24 @@ const renderFile = (file, content) => {
 	updateUserInterface(false);
 };
 
-const markdownContextMenu = Menu.buildFromTemplate([
-	{ label: 'Open File', click(){ mainProcess.getFileFromUser(currentWindow); } },
-	{
-		label: 'Show File in Folder',
-		click: showFile
-	},
-	{
-		label: 'Open in Default Editor',
-		click: openInDefaultApplication
-	},
-	{ type: 'separator' },
-	{ label: 'Cut', role: 'cut' },
-	{ label: 'Paste', role: 'paste' },
-	{ label: 'SelectAll', role: 'selectall' }
-]);
+const createContextMenu = () => {
+	return Menu.buildFromTemplate([
+		{ label: 'Open File', click(){ mainProcess.getFileFromUser(currentWindow); } },
+		{
+			label: 'Show File in Folder',
+			click: showFile,
+			enabled: !!filePath
+		},
+		{
+			label: 'Open in Default Editor',
+			click: openInDefaultApplication,
+			enabled: !!filePath
+		},
+		{ type: 'separator' },
+		{ label: 'Cut', role: 'cut' },
+		{ label: 'Paste', role: 'paste' },
+		{ label: 'SelectAll', role: 'selectall' }
+	]);
+};
 
 
