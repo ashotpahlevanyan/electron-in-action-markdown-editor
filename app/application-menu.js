@@ -1,7 +1,6 @@
 const { app, dialog, BrowserWindow, Menu, MenuItem, shell } = require('electron');
 const mainProcess = require('./main');
 
-
 const copyMenuItem = new MenuItem({
 	label: 'Copy',
 	accelerator: 'CommandOrControl+C',
@@ -57,6 +56,33 @@ const template = [
 						);
 					}
 					focusedWindow.webContents.send('save-html');
+				}
+			},
+			{ type: 'separator' },
+			{
+				label: 'Show File',
+				accelerator: 'Shift+CommandOrControl+S',
+				click(item, focusedWindow){
+					if(!focusedWindow) {
+						return dialog.showErrorBox(
+							'Cannot show File\'s location.',
+							'There is currently no active document to show.'
+						);
+					}
+					focusedWindow.webContents.send('show-file');
+				}
+			},
+			{
+				label: 'Open In Default Editor',
+				accelerator: 'Shift+CommandOrControl+O',
+				click(item, focusedWindow){
+					if(!focusedWindow) {
+						return dialog.showErrorBox(
+							'Cannot Open File in Default Editor.',
+							'There is currently no active document to open.'
+						);
+					}
+					focusedWindow.webContents.send('open-in-default');
 				}
 			}
 		]

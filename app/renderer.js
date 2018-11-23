@@ -1,4 +1,4 @@
-const { remote, ipcRenderer } = require('electron');
+const { remote, ipcRenderer, shell } = require('electron');
 const { Menu } = remote;
 const path = require('path');
 const mainProcess = remote.require('./main.js');
@@ -15,6 +15,24 @@ const	revertButton = document.querySelector('#revert');
 const	saveHtmlButton = document.querySelector('#save-html');
 const	showFileButton = document.querySelector('#show-file');
 const	openInDefaultButton = document.querySelector('#open-in-default');
+
+const showFile = () => {
+	if(!filePath) {
+		return alert('This file has not been saved to the filesystem');
+	}
+	shell.showItemInFolder(filePath);
+};
+
+const openInDefaultApplication = () => {
+	if(!filePath) {
+		return alert('This file has not been saved to the filesystem');
+	}
+	shell.openItem(filePath);
+};
+
+showFileButton.addEventListener('click', showFile);
+openInDefaultButton.addEventListener('click', openInDefaultApplication);
+
 
 
 document.addEventListener('dragstart', event => event.preventDefault());
@@ -36,7 +54,6 @@ markdownView.addEventListener('contextmenu', (event) => {
 	event.preventDefault();
 	markdownContextMenu.popup({});
 });
-
 
 openFileButton.addEventListener('click', () => {
 	mainProcess.getFileFromUser(currentWindow);
@@ -133,6 +150,10 @@ ipcRenderer.on('save-html', () => {
 	mainProcess.saveHtml(currentWindow, htmlView.innerHTML);
 });
 
+ipcRenderer.on('show-file', showFile);
+
+ipcRenderer.on('open-in-default', openInDefaultApplication);
+
 
 const updateUserInterface = (isEdited) => {
 	let title = 'Fire Sale';
@@ -168,13 +189,26 @@ const renderFile = (file, content) => {
 	markdownView.value = content;
 	renderMarkdownToHtml(content);
 
+	showFileButton.disabled = false;
+	openInDefaultButton.disabled = false;
+
 	updateUserInterface(false);
 };
 
 const markdownContextMenu = Menu.buildFromTemplate([
 	{ label: 'Open File', click(){ mainProcess.getFileFromUser(currentWindow); } },
+	{
+		label: 'Show File in Folder',
+		click: showFile
+	},
+	{
+		label: 'Open in Default Editor',
+		click: openInDefaultApplication
+	},
 	{ type: 'separator' },
 	{ label: 'Cut', role: 'cut' },
 	{ label: 'Paste', role: 'paste' },
 	{ label: 'SelectAll', role: 'selectall' }
 ]);
+
+
