@@ -118,6 +118,13 @@ ipcRenderer.on('file-changed', (event, file, content) => {
 	renderFile(file, content);
 });
 
+ipcRenderer.on('save-markdown', () => {
+	mainProcess.saveMarkdown(currentWindow, filePath, markdownView.value);
+});
+
+ipcRenderer.on('save-html', () => {
+	mainProcess.saveHtml(currentWindow, htmlView.innerHTML);
+});
 
 
 const updateUserInterface = (isEdited) => {
